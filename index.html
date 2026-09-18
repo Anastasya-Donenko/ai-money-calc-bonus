@@ -321,7 +321,7 @@ h1,h2,h3 { font-family:'Montserrat',sans-serif; text-wrap:balance; }
   <hr class="divider">
 
   <!-- BOTTOM CTA -->
-  <section class="cta-bottom fu">
+  <section class="cta-bottom">
     <div class="chip chip-t">AI-Money Club</div>
     <h2>Хочеш більше таких<br><em>готових інструментів?</em></h2>
     <p>Такі промпти, автоматизації та AI-інструменти — щотижня у клубі. Приєднуйся і починай заробляти з AI вже зараз.</p>
@@ -412,13 +412,25 @@ h1,h2,h3 { font-family:'Montserrat',sans-serif; text-wrap:balance; }
   window.addEventListener('resize', resize);
 
   /* ── Copy ── */
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
   window.copyPrompt = function(btn) {
-    const text = document.getElementById('prompt-text').textContent;
-    navigator.clipboard.writeText(text.trim()).then(() => {
-      btn.textContent = 'Скопійовано ✓';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Копіювати'; btn.classList.remove('copied'); }, 2200);
-    });
+    const text = document.getElementById('prompt-text').textContent.trim();
+    // Показуємо фідбек одразу, не чекаємо на clipboard API
+    btn.textContent = 'Скопійовано ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Копіювати'; btn.classList.remove('copied'); }, 2200);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
   };
 
   /* ── Scroll reveal ── */
